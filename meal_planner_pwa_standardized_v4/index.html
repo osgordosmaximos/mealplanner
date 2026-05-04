@@ -866,11 +866,13 @@ select.input {
   border-radius:var(--r); border:1px solid var(--border);
   box-shadow:var(--shadow-lg); overflow:hidden;
   touch-action:none; user-select:none; will-change:transform;
+  transition:transform .28s cubic-bezier(.32,1.05,.64,1), opacity .18s ease;
 }
 .swipe-card.top { z-index:3; cursor:grab; animation:discover-card-fade .22s ease both; }
 .swipe-card.top:active { cursor:grabbing; }
 .swipe-card.peek1 { z-index:2; transform:scale(.97) translateY(8px); pointer-events:none; }
 .swipe-card.peek2 { z-index:1; transform:scale(.94) translateY(16px); pointer-events:none; }
+.swipe-card.top.promoting { animation:none; }
 .swipe-card-body { padding:16px; display:flex; flex-direction:column; min-height:calc(100% - 195px); }
 .swipe-card-title { font-family:var(--font-display); font-size:24px; color:var(--accent-dk); margin-bottom:6px; font-weight:700; line-height:1.2;}
 .swipe-card-meta { display:flex; gap:6px; flex-wrap:wrap; }
@@ -1194,7 +1196,7 @@ select.input {
 .setting-inline-note { font-size:12px; color:var(--text2); line-height:1.3; margin-top:3px; font-family:var(--font-ui); }
 .setting-inline-stepper { height:34px; border:1px solid var(--border); border-radius:var(--r-pill); display:flex; align-items:center; gap:10px; padding:0 6px; }
 .setting-inline-stepper .srv-btn { width:26px; height:26px; border:0; background:transparent; color:var(--accent); font-size:19px; cursor:pointer; }
-.setting-inline-value { font-size:16px; font-family:var(--font-ui); font-weight:700; color:var(--text); min-width:24px; }
+.setting-inline-value { font-size:16px; font-family:var(--font-ui); font-weight:700; color:var(--text); min-width:24px;text-align: center; }
 
 .reset-card { border-color:#f4b2b2; background:#fff; }
 .reset-card .btn { width:100%; color:var(--red); }
@@ -1543,8 +1545,30 @@ select.input {
   .leftover-left-count {
     grid-column:2; grid-row:2; justify-self:start; margin-top:-6px;
   }
-  .leftover-targets { grid-column:1 / -1; grid-template-columns:1fr; }
-  .leftover-day-row { grid-template-columns:1fr; gap:7px; }
+  .leftover-left-controls {
+    grid-column:2;
+    grid-row:2;
+    justify-self:start;
+    margin-top:-6px;
+  }
+  .leftover-targets {
+    grid-column:1 / -1;
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:0;
+    margin-top:0;
+  }
+  .leftover-day-row {
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    width:100%;
+    gap:7px;
+  }
+  .leftover-slot-grid {
+    width:100%;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  }
   .recipe-floating-add,
   .leftover-floating-card { width:calc(100vw - 32px); bottom:calc(68px + env(safe-area-inset-bottom)); }
   .week-day-meals .meal-card-v2 .meal-title-v2 { font-size:16px; }
@@ -1759,7 +1783,7 @@ const SPECIAL_MEALS=[
 ];
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const STORAGE_KEY='mealplanner_v7_personal';
-const APP_VERSION='v1.2026.2.4';
+const APP_VERSION='v1.2026.2.5';
 const RECIPES_CSV_URL='./recipes.csv';
 const RECIPES_CSV_FALLBACKS=[
   './recipes.csv',
@@ -3817,19 +3841,29 @@ function openLeftoverPlacementModal(){
     const targets=leftoverTargetsForItem(item);
     const recipe=item.recipeId?getRecipe(item.recipeId):null;
     const itemKey=leftoverItemKey(item.sourceAbs,item.recipeId,item.specialType);
+    const targetMap=new Map();
+    targets.forEach(t=>targetMap.set(`${t.wo}-${t.di}-${t.slot}`,t));
     const groupedTargets=[];
-    targets.forEach(t=>{
-      let group=groupedTargets.find(g=>g.wo===t.wo&&g.di===t.di);
-      if(!group){ const d=plannerDate(t.wo,t.di); group={wo:t.wo,di:t.di,date:d,lunch:null,dinner:null}; groupedTargets.push(group); }
-      group[t.slot]=t;
-    });
+    for(let dayOffset=1; dayOffset<=6; dayOffset++){
+      const dayAbs=item.sourceAbs+(dayOffset*2);
+      const lunch=slotFromAbsoluteIndex(dayAbs);
+      const dinner=slotFromAbsoluteIndex(dayAbs+1);
+      const date=plannerDate(lunch.wo,lunch.di);
+      groupedTargets.push({
+        wo:lunch.wo,
+        di:lunch.di,
+        date,
+        lunch:targetMap.get(`${lunch.wo}-${lunch.di}-lunch`)||null,
+        dinner:targetMap.get(`${dinner.wo}-${dinner.di}-dinner`)||null
+      });
+    }
     const targetButton=(t,slotLabel)=>{
       if(!t) return `<button class="leftover-target-btn empty-slot" disabled><span><strong>${slotLabel}</strong><small>No slot</small></span></button>`;
       const needed=Math.max(0,getMealPeople(t.wo,t.di,t.slot));
       const servings=Math.min(item.available,needed);
       return `<button class="leftover-target-btn" data-leftover-item="${escHtml(itemKey)}" data-target-key="${t.wo}-${t.di}-${t.slot}" data-needed="${needed}" data-servings="${servings}" onclick="toggleLeftoverPick(${item.sourceAbs},${jsArg(item.recipeId)},${jsArg(item.specialType)},${t.wo},${t.di},${jsArg(t.slot)},this)"><span><strong>${slotLabel}</strong><small>${needed} needed</small></span><span class="target-check"></span></button>`;
     };
-    const targetHtml=groupedTargets.length?groupedTargets.map(g=>`<div class="leftover-day-row"><div class="leftover-day-label">${escHtml(FULL_DAYS[g.di])}, ${g.date.getDate()}</div><div class="leftover-slot-grid">${targetButton(g.lunch,'Lunch')}${targetButton(g.dinner,'Dinner')}</div></div>`).join(''):'<div class="leftover-target-empty">No open meal slots in the next 6 days.</div>';
+    const targetHtml=groupedTargets.map(g=>`<div class="leftover-day-row"><div class="leftover-day-label">${escHtml(FULL_DAYS[g.di])}, ${g.date.getDate()}</div><div class="leftover-slot-grid">${targetButton(g.lunch,'Lunch')}${targetButton(g.dinner,'Dinner')}</div></div>`).join('');
     return `<div class="leftover-overlay-card"><div class="badge-icon leftover-overlay-thumb">${recipe?recipeImgDiv(recipe,'58px','border-radius:0;'):icon('pantry')}</div><div class="leftover-overlay-main"><div class="leftover-copy"><strong>${escHtml(item.name)}</strong><span class="leftover-overlay-meta">Cooked ${escHtml(cookedDateLabelFromAbs(item.sourceAbs))}</span></div></div>${leftoverAdjustControls(item,'place')}<div class="leftover-targets">${targetHtml}</div></div>`;
   }).join('');
   openStandardModal({
@@ -4743,6 +4777,61 @@ renderDiscoverDeck=function(){
   });
   if(actions) actions.style.display='flex';
   if(status) status.textContent=`${discoverQueue.length} recipe${discoverQueue.length!==1?'s':''} in queue · ${state.favourites.size} saved`;
+};
+
+function buildDiscoverCard(recipe, className, interactive){
+  const card=document.createElement('div');
+  const descText=discoverDescriptionText(recipe);
+  const proteinTags=(recipe.protein||[]).map(p=>`<span class="tag tag-orange" style="font-size:11px;">${icon('protein')} ${cleanProteinLabel(p)}</span>`).join('');
+  const allergenTags=(recipe.allergens||[]).map(a=>`<span class="tag tag-red" style="font-size:11px;">⚠ ${cap(a)}</span>`).join('');
+  card.className='swipe-card '+className;
+  card.dataset.rid=recipe.id;
+  card.innerHTML=`${recipeImgDiv(recipe,'195px','border-radius:0;')}<div class="swipe-overlay reject-ov" id="rov-${recipe.id}">${icon('close')}</div><div class="swipe-overlay save-ov" id="sov-${recipe.id}">${icon('heart')}</div><div class="swipe-card-body"><div class="swipe-card-title" style="margin-bottom:5px;">${escHtml(recipe.name)}</div><div class="swipe-card-meta" style="gap:4px;margin-bottom:0;"><span class="tag ${ctag(recipe.cuisine)}" style="font-size:11px;">${recipe.cuisine}</span><span class="tag ${dtag(recipe.difficulty||'Medium')}" style="font-size:11px;">${recipe.difficulty||'Medium'}</span><span class="tag tag-blue" style="font-size:11px;">${icon('clock')} ${recipe.prepTime||30}m</span><span class="tag tag-brown" style="font-size:11px;">${icon('people')} ${recipe.baseServings} pax</span>${proteinTags}${allergenTags}</div>${descText?`<p class="swipe-card-desc">${escHtml(descText)}</p>`:''}</div>`;
+  if(interactive) initCardDrag(card, recipe);
+  return card;
+}
+
+processSwipe=function(action){
+  if(!discoverQueue.length) return;
+  const recipe=discoverQueue.shift();
+  if(action==='save') state.favourites.add(recipe.id);
+  else discoverRejected.add(recipe.id);
+  saveState();
+  renderRecipeList();
+  renderPersonal();
+  renderDiscoverSaved();
+
+  const deck=document.getElementById('discover-deck');
+  const actions=document.getElementById('discover-actions');
+  const status=document.getElementById('discover-status');
+  if(!deck){
+    renderDiscoverDeck();
+    return;
+  }
+
+  const top=deck.querySelector('.swipe-card.top');
+  if(top) top.remove();
+
+  const nextTop=deck.querySelector('.swipe-card.peek1');
+  const nextPeek=deck.querySelector('.swipe-card.peek2');
+
+  if(nextTop){
+    nextTop.classList.remove('peek1');
+    nextTop.classList.add('top','promoting');
+    nextTop.style.pointerEvents='auto';
+    if(discoverQueue[0]) initCardDrag(nextTop, discoverQueue[0]);
+    requestAnimationFrame(()=>nextTop.classList.remove('promoting'));
+  }
+  if(nextPeek){
+    nextPeek.classList.remove('peek2');
+    nextPeek.classList.add('peek1');
+  }
+  if(!deck.querySelector('.swipe-card.peek2') && discoverQueue[2]){
+    deck.insertBefore(buildDiscoverCard(discoverQueue[2],'peek2',false), deck.firstChild);
+  }
+  if(!discoverQueue.length || !nextTop) renderDiscoverDeck();
+  if(actions) actions.style.display=discoverQueue.length?'flex':'none';
+  if(status) status.textContent=discoverQueue.length?`${discoverQueue.length} recipe${discoverQueue.length!==1?'s':''} in queue · ${state.favourites.size} saved`:'';
 };
 
 viewRecipe=function(id, servings, returnToDiscover=false){
