@@ -1,4 +1,4 @@
-const CACHE_NAME = 'meal-planner-standardized-v15';
+const CACHE_NAME = 'meal-planner-standardized-v16';
 
 const APP_SHELL = [
   './',

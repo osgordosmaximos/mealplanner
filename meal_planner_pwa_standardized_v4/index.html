@@ -1714,7 +1714,7 @@ const SPECIAL_MEALS=[
 ];
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const STORAGE_KEY='mealplanner_v7_personal';
-const APP_VERSION='v1.2026.2.1';
+const APP_VERSION='v1.2026.2.2';
 const RECIPES_CSV_URL='./recipes.csv';
 
 let SEED=[];
@@ -1743,19 +1743,24 @@ function safeStorageArray(key){
   }
 }
 function parseCsvRows(text){
+  const source=String(text||'');
+  const firstLine=(source.split(/\r?\n/).find(line=>String(line).trim())||'');
+  const commaCount=(firstLine.match(/,/g)||[]).length;
+  const semicolonCount=(firstLine.match(/;/g)||[]).length;
+  const delim=semicolonCount>commaCount?';':',';
   const rows=[];
   let row=[], field='', quoted=false;
-  for(let i=0;i<String(text||'').length;i++){
-    const ch=text[i];
+  for(let i=0;i<source.length;i++){
+    const ch=source[i];
     if(quoted){
       if(ch==='"'){
-        if(text[i+1]==='"'){ field+='"'; i++; }
+        if(source[i+1]==='"'){ field+='"'; i++; }
         else quoted=false;
       }else field+=ch;
       continue;
     }
     if(ch==='"') quoted=true;
-    else if(ch===','){ row.push(field); field=''; }
+    else if(ch===delim){ row.push(field); field=''; }
     else if(ch==='\n'){ row.push(field); rows.push(row); row=[]; field=''; }
     else if(ch!=='\r') field+=ch;
   }
