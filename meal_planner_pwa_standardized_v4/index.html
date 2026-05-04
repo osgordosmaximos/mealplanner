@@ -231,13 +231,24 @@ select.input {
 
 /* ---- 9. Search ----------------------------------------- */
 .search-wrap { position:relative; margin:22px 0 18px; }
-.search-wrap .input { height:58px; border-radius:var(--r); padding:0 18px 0 54px; font-size:14px; }
+.search-wrap .input { height:58px; border-radius:var(--r); padding:0 48px 0 54px; font-size:14px; }
 .search-ico {
   position:absolute; left:18px; top:50%; transform:translateY(-50%);
   color:var(--accent-dk); display:flex; align-items:center; justify-content:center; z-index:2;
   width:24px; height:24px;
 }
 .search-ico .app-ico { width:23px; height:23px; stroke-width:2px; }
+.search-clear {
+  position:absolute; right:14px; top:50%; transform:translateY(-50%);
+  width:28px; height:28px; border:0; border-radius:50%;
+  background:transparent; color:var(--text2);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; opacity:0; pointer-events:none;
+  transition:opacity .15s ease, color .15s ease, background-color .15s ease;
+}
+.search-wrap.has-value .search-clear { opacity:1; pointer-events:auto; }
+.search-clear:hover { color:var(--accent-dk); background:var(--accent-lt); }
+.search-clear .app-ico { width:16px; height:16px; stroke-width:2px; }
 
 /* ---- 10. Empty states ---------------------------------- */
 /* .empty { text-align:center; padding:56px 20px; color:var(--text2); } */
@@ -789,16 +800,16 @@ select.input {
 .surface-action-card,
 .add-recipe-card {
   display:grid; grid-template-columns:58px 1fr auto; align-items:center;
-  gap:14px; background:linear-gradient(135deg,#f2f9f4,#fff);
+  gap:5px; background:linear-gradient(135deg,#f2f9f4,#fff);
   border:1.5px solid var(--border); border-radius:var(--r);
-  box-shadow:var(--shadow); padding:15px; margin:18px 0 4px; cursor:pointer;
+  box-shadow:var(--shadow); padding:10px; margin:18px 0 4px; cursor:pointer;
   width:100%; text-align:left; font-family:var(--font-ui); color:var(--text);
   transition:box-shadow .15s ease;
 }
 .surface-action-card:hover,
 .add-recipe-card:hover { box-shadow:var(--shadow-lg); }
 .surface-action-card .badge-icon,
-.add-recipe-card .badge-icon { width:58px; height:58px; border-radius:var(--r); background:var(--accent-lt); color:var(--accent-dk); display:flex; align-items:center; justify-content:center; }
+.add-recipe-card .badge-icon { width:50px; height:50px; border-radius:var(--r); background:var(--accent-lt); color:var(--accent-dk); display:flex; align-items:center; justify-content:center; }
 .surface-action-card .badge-icon .app-ico,
 .add-recipe-card .badge-icon .app-ico { width:24px; height:24px; stroke-width:1.9px; }
 .surface-action-card strong,
@@ -845,7 +856,7 @@ select.input {
   backdrop-filter:blur(18px);
   box-shadow:var(--shadow-lg);
   border-radius:var(--r);
-  padding:15px;
+  padding:10px;
 }
 
 /* Discover deck */
@@ -856,13 +867,18 @@ select.input {
   box-shadow:var(--shadow-lg); overflow:hidden;
   touch-action:none; user-select:none; will-change:transform;
 }
-.swipe-card.top { z-index:3; cursor:grab; }
+.swipe-card.top { z-index:3; cursor:grab; animation:discover-card-fade .22s ease both; }
 .swipe-card.top:active { cursor:grabbing; }
 .swipe-card.peek1 { z-index:2; transform:scale(.97) translateY(8px); pointer-events:none; }
 .swipe-card.peek2 { z-index:1; transform:scale(.94) translateY(16px); pointer-events:none; }
-.swipe-card-body { padding:14px 16px; }
-.swipe-card-title { font-family:var(--font-display); font-size:28px; color:var(--accent-dk); margin-bottom:6px; font-weight:700; }
+.swipe-card-body { padding:16px; display:flex; flex-direction:column; min-height:calc(100% - 195px); }
+.swipe-card-title { font-family:var(--font-display); font-size:24px; color:var(--accent-dk); margin-bottom:6px; font-weight:700; line-height:1.2;}
 .swipe-card-meta { display:flex; gap:6px; flex-wrap:wrap; }
+.swipe-card-desc {
+  font-size:12px; color:var(--text2); line-height:1.6; margin-top:10px;
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:7;
+  overflow:hidden; text-overflow:ellipsis;
+}
 .swipe-overlay {
   position:absolute; inset:0; display:flex; align-items:center;
   justify-content:center; font-size:72px; opacity:0; pointer-events:none;
@@ -871,22 +887,38 @@ select.input {
 .swipe-overlay.reject-ov { background:rgba(239,68,68,.18); }
 .swipe-overlay.save-ov   { background:rgba(34,197,94,.18); }
 .swipe-overlay .app-ico  { width:44px; height:44px; }
-.discover-actions { display:flex; justify-content:center; align-items:center; gap:22px; margin:10px 0 8px; }
+.discover-actions { display:flex; justify-content:center; align-items:center; gap:22px; margin:18px 0 8px; position:relative; z-index:8; }
 .da-btn {
   width:62px; height:62px; border-radius:var(--r); border:1px solid var(--border);
   background:#fff; box-shadow:var(--shadow); font-size:24px;
   display:flex; align-items:center; justify-content:center; cursor:pointer;
-  transition:box-shadow .2s ease, background-color .15s ease;
+  transition:box-shadow .2s ease, background-color .15s ease, color .15s ease;
+  appearance:none; -webkit-appearance:none; color:var(--accent-dk);
+  -webkit-tap-highlight-color:transparent;
 }
-.da-reject { background:#FEE2E2; }
-.da-reject:hover { background:#FECACA; }
-.da-info { background:var(--card); font-size:20px; width:46px; height:46px; }
-.da-info:hover { border-color:var(--accent); }
-.da-save { background:#DCFCE7; }
-.da-save:hover { background:#BBF7D0; }
+.da-btn .app-ico { width:24px; height:24px; stroke-width:2px; color:currentColor; }
+.da-reject { color:#B91C1C; }
+.da-reject:hover { border-color:#FCA5A5; color:#991B1B; }
+.da-info { font-size:20px; width:46px; height:46px; color:var(--accent-dk); }
+.da-info:hover { border-color:var(--accent); color:var(--accent); }
+.da-save { color:var(--accent); }
+.da-save:hover { border-color:#86EFAC; color:var(--accent-dk); }
 .discover-status { text-align:center; font-size:12px; color:var(--text2); margin-top:8px; }
 .discover-saved-section { margin-top:12px; }
 .discover-saved-title { font-family:var(--font-display); font-size:16px; font-weight:600; margin-bottom:10px; }
+.discover-list {
+  width:100%; border:1.5px solid var(--border); border-radius:var(--r);
+  background:#fff; box-shadow:var(--shadow-sm); margin-bottom:10px; overflow:hidden;
+}
+.discover-list summary {
+  list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between;
+  gap:10px; padding:14px 16px; font-size:14px; font-weight:700; color:var(--accent-dk);
+}
+.discover-list summary::-webkit-details-marker { display:none; }
+.discover-list summary span { display:inline-flex; align-items:center; gap:8px; }
+.discover-list summary .app-ico { width:18px; height:18px; }
+.discover-list[open] summary { border-bottom:1px solid var(--line); background:#fbfdf9; }
+.discover-list-body { padding:12px 14px 6px; }
 .fav-chip {
   display:inline-flex; align-items:center; gap:6px;
   padding:6px 12px; border-radius:var(--r); background:var(--card);
@@ -1182,9 +1214,19 @@ select.input {
 .week-pill { display:inline-flex; align-items:center; gap:6px; border:1.5px solid var(--border); border-radius:var(--r-pill); background:#fff; padding:9px 12px; color:var(--text); font-size:12px; box-shadow:var(--shadow-sm); white-space:nowrap; }
 
 /* ---- 22. Recipe detail --------------------------------- */
-.detail-hd { padding:16px 18px 12px; border-bottom:1px solid var(--line); flex-shrink:0; position:relative; }
-.detail-title { font-family:var(--font-display); font-size:26px; font-weight:700; color:var(--accent-dk); letter-spacing:-.04em; line-height:1.2; margin-bottom:8px; }
-.detail-meta { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:5px; }
+.detail-hd { padding:16px 18px 10px; border-bottom:1px solid var(--line); flex-shrink:0; position:relative; }
+.detail-title { font-family:var(--font-display); font-size:26px; font-weight:700; color:var(--accent-dk); letter-spacing:-.04em; line-height:1.2; margin-bottom:12px; }
+.detail-meta { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:5px;padding-right:52px;}
+.detail-head-row { display:block; padding-right:52px; }
+.detail-side-actions { position:absolute; top:16px; right:18px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+.detail-side-link {
+  width:34px; height:34px; border-radius:50%; border:0;
+  background:transparent; color:var(--accent-dk); display:inline-flex;
+  align-items:center; justify-content:center; cursor:pointer;
+  transition:color .15s ease, background-color .15s ease;
+}
+.detail-side-link:hover { color:var(--accent); background:var(--accent-lt); }
+.detail-side-link .app-ico { width:20px; height:20px; stroke-width:2px; }
 .detail-switch { display:grid; grid-template-columns:1fr 1fr; gap:4px; background:var(--line); border-radius:var(--r); padding:4px; margin:0 0 16px; }
 .detail-switch button {
   border:none; border-radius:8px; background:transparent;
@@ -1238,8 +1280,11 @@ select.input {
 .ing-row-view:last-child { border-bottom:none; }
 .ing-amt { color:var(--accent-dk); font-weight:500; font-size:12px; }
 .section-hd { font-family:var(--font-display); font-size:23px; font-weight:700; color:var(--accent-dk); letter-spacing:-.025em; margin:14px 0 8px; }
-.web-search-link { display:inline-flex; margin-top:10px; font-size:12px; color:var(--accent); font-weight:700; text-decoration:underline dashed 1px; text-underline-offset:4px; }
-.web-search-link:hover { color:var(--accent-dk); }
+
+@keyframes discover-card-fade {
+  from { opacity:.72; }
+  to { opacity:1; }
+}
 
 /* Meal picker (add-to-plan list in recipe detail) */
 .meal-pick {
@@ -1268,7 +1313,7 @@ select.input {
 }
 .leftover-floating-card .badge-icon,
 .leftover-overlay-card .badge-icon {
-  width:58px; height:58px; border-radius:var(--r);
+  width:50px; height:50px; border-radius:var(--r);
   background:var(--accent-lt); color:var(--accent-dk);
   display:flex; align-items:center; justify-content:center;
   overflow:hidden; flex-shrink:0;
@@ -1337,7 +1382,7 @@ select.input {
 /* Target slot grid */
 .leftover-targets {
   grid-column:1 / -1; display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:0;
+  grid-template-columns:1fr; gap:0; margin-top:0;
 }
 .leftover-day-row {
   display:grid; grid-template-columns:minmax(0,1fr);
@@ -1498,7 +1543,7 @@ select.input {
   .leftover-left-count {
     grid-column:2; grid-row:2; justify-self:start; margin-top:-6px;
   }
-  .leftover-targets { grid-column:1 / -1; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .leftover-targets { grid-column:1 / -1; grid-template-columns:1fr; }
   .leftover-day-row { grid-template-columns:1fr; gap:7px; }
   .recipe-floating-add,
   .leftover-floating-card { width:calc(100vw - 32px); bottom:calc(68px + env(safe-area-inset-bottom)); }
@@ -1576,7 +1621,7 @@ select.input {
   border:1.5px solid var(--border); border-radius:var(--r);
   box-shadow:var(--shadow); padding:15px;
 }
-.special-entry-card .badge-icon { width:58px; height:58px; border-radius:var(--r); overflow:hidden; display:flex; align-items:center; justify-content:center; }
+.special-entry-card .badge-icon { width:50px; height:50px; border-radius:var(--r); overflow:hidden; display:flex; align-items:center; justify-content:center; }
 .special-entry-card .badge-icon .app-ico { width:24px; height:24px; stroke-width:1.9px; }
 .special-entry-card strong { display:block; font-size:18px; font-weight:700; line-height:1.15; color:var(--accent-dk); }
 .special-entry-card span { display:block; margin-top:4px; font-size:14px; line-height:1.25; color:var(--text2); }
@@ -1714,8 +1759,14 @@ const SPECIAL_MEALS=[
 ];
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const STORAGE_KEY='mealplanner_v7_personal';
-const APP_VERSION='v1.2026.2.2';
+const APP_VERSION='v1.2026.2.4';
 const RECIPES_CSV_URL='./recipes.csv';
+const RECIPES_CSV_FALLBACKS=[
+  './recipes.csv',
+  'recipes.csv',
+  './meal_planner_pwa_standardized_v4/recipes.csv',
+  '/meal_planner_pwa_standardized_v4/recipes.csv'
+];
 
 let SEED=[];
 
@@ -1823,13 +1874,35 @@ function recipeFromCsvRow(row){
   });
 }
 async function loadRecipeLibrary(){
+  const tried=new Set();
+  const candidates=[
+    RECIPES_CSV_URL,
+    ...RECIPES_CSV_FALLBACKS,
+    new URL('recipes.csv', window.location.href).toString(),
+    new URL('./recipes.csv', window.location.href).toString()
+  ].filter(Boolean).filter(url=>{
+    const key=String(url);
+    if(tried.has(key)) return false;
+    tried.add(key);
+    return true;
+  });
   try{
-    const response=await fetch(RECIPES_CSV_URL,{cache:'no-store'});
-    if(!response.ok) throw new Error(`HTTP ${response.status}`);
-    const rows=parseCsvRows(await response.text());
-    const recipes=rows.map(recipeFromCsvRow).filter(r=>r.id&&r.name);
-    if(!recipes.length) throw new Error('recipes.csv did not contain valid recipes');
-    SEED=recipes;
+    let lastError=null;
+    for(const url of candidates){
+      try{
+        const response=await fetch(url,{cache:'no-store'});
+        if(!response.ok) throw new Error(`HTTP ${response.status}`);
+        const rows=parseCsvRows(await response.text());
+        const recipes=rows.map(recipeFromCsvRow).filter(r=>r.id&&r.name);
+        if(!recipes.length) throw new Error('recipes.csv did not contain valid recipes');
+        SEED=recipes;
+        window.__mealPlannerRecipesUrl=url;
+        return;
+      }catch(err){
+        lastError=err;
+      }
+    }
+    throw lastError||new Error('Could not load recipes.csv from any candidate path');
   }catch(e){
     console.warn('Could not load recipes.csv. Falling back to saved local recipes only.', e);
   }
@@ -3210,9 +3283,10 @@ function renderPickModal(){
           </div>
         </details>
 
-        <div class="search-wrap" style="margin:14px 0;">
+        <div class="search-wrap ${ps.search?'has-value':''}" id="pick-search-wrap" style="margin:14px 0;">
           <span class="search-ico">${icon('search')}</span>
-          <input class="input" id="pick-search" type="search" autocomplete="off" placeholder="Search meals…" value="${escHtml(ps.search||'')}" oninput="updatePickSearch(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();}">
+          <input class="input" id="pick-search" type="search" autocomplete="off" placeholder="Search meals…" value="${escHtml(ps.search||'')}" oninput="syncSearchWrapState('pick-search');updatePickSearch(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();}">
+          <button class="search-clear" type="button" onclick="clearPickSearch()" aria-label="Clear search">${icon('close')}</button>
         </div>
         <div id="pick-list">${renderPickMealResults(filtered)}</div>
       </div>`);
@@ -4325,7 +4399,7 @@ function ensureRedesignShells(){
   const recipes=document.getElementById('tab-recipes');
   if(recipes) recipes.innerHTML=`
     <div><h1 class="pg-title">Recipes</h1><p class="pg-sub" id="recipes-subtitle">Browse your recipes</p><p class="pg-sub" id="recipe-count"></p></div>
-    <div class="search-wrap"><span class="search-ico">${icon('search')}</span><input class="input" id="recipe-search" type="text" placeholder="Search recipes, ingredients, or cuisine" oninput="renderRecipeList()"></div>
+    <div class="search-wrap" id="recipe-search-wrap"><span class="search-ico">${icon('search')}</span><input class="input" id="recipe-search" type="text" placeholder="Search recipes, ingredients, or cuisine" oninput="syncSearchWrapState('recipe-search');renderRecipeList()"><button class="search-clear" type="button" onclick="clearRecipeSearch()" aria-label="Clear search">${icon('close')}</button></div>
     <div class="recipe-toolbar">
       <button id="favorites-pill" class="icon-pill" onclick="toggleRecipeFavoritesOnly()">${icon('heart')}Favorites</button>
       <button class="icon-pill primary" onclick="openDiscoverModal()">${icon('compass')}Discover</button>
@@ -4503,6 +4577,7 @@ icon = function(name, cls=''){
   if(name==='protein') return `<svg ${common}><path d="M12 3 4 7v6c0 4 3.2 7 8 8 4.8-1 8-4 8-8V7l-8-4Z"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>`;
   if(name==='chart') return `<svg ${common}><path d="M4 19h16"/><path d="M7 16v-3"/><path d="M12 16V9"/><path d="M17 16V5"/></svg>`;
   if(name==='fork') return `<svg ${common}><path d="M7 3v8"/><path d="M11 3v8"/><path d="M9 3v18"/><path d="M17 3v18"/><path d="M17 3c2 1.8 3 4 3 7h-6c0-3 1-5.2 3-7Z"/></svg>`;  if(name==='skip') return `<svg ${common}><path d="m5 7 5 5-5 5"/><path d="m13 7 5 5-5 5"/></svg>`;
+  if(name==='arrowUpRight') return `<svg ${common}><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg>`;
   if(name==='leftovers') return `<svg ${common}><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M8 9h8"/><path d="M8 12h8"/><path d="M8 15h5"/></svg>`;
   return __baseIcon(name, cls);
 };
@@ -4538,7 +4613,7 @@ function renderRecipeList(){
 function viewRecipe(id, servings, returnToDiscover=false){
   const r=getRecipe(id); if(!r) return; const scale=servings?servings/r.baseServings:1; const steps=getSteps(r); const fav=state.favourites.has(id);
   const closeAction=returnToDiscover?'closeModal();openDiscoverModal(true)':'closeModal()';
-  showModal(`<div style="position:relative;flex-shrink:0;">${recipeImgDiv(r,'210px','border-radius:0;')}<button class="btn-icon detail-close-btn" onclick="${closeAction}">${icon('close')}</button></div><div class="detail-hd"><div style="display:flex;align-items:flex-start;gap:8px;"><h2 class="detail-title" style="flex:1;">${escHtml(r.name)}</h2><button class="fav-star ${fav?'filled':''}" onclick="toggleFav(${jsArg(id)})" data-fav-id="${escHtml(id)}" title="Favourite">${icon(fav?'heartFilled':'heart')}</button></div><div class="detail-meta"><span class="tag ${ctag(r.cuisine)}">${icon('compass')} ${escHtml(r.cuisine)}</span><span class="tag ${dtag(r.difficulty||'Medium')}">${icon('chart')} ${escHtml(r.difficulty||'Medium')}</span><span class="tag tag-blue">${icon('clock')} ${r.prepTime||30} min</span><span class="tag tag-brown">${icon('people')} ${servings||r.baseServings} pax</span>${(r.protein||[]).map(p=>`<span class="tag tag-orange" style="font-size:10px;">${icon('protein')} ${escHtml(cleanProteinLabel(p))}</span>`).join('')}</div>${(r.allergens||[]).length?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">${r.allergens.map(a=>`<span class="tag tag-red" style="font-size:10px;">⚠ ${escHtml(a)}</span>`).join('')}</div>`:''}<a class="web-search-link" href="${webSearchUrl(r.name)}" target="_blank" rel="noopener">Search the web</a></div><div class="modal-body"><div class="detail-switch"><button id="detail-tab-ingredients" class="active" onclick="toggleRecipeDetail('ingredients')">Ingredients</button><button id="detail-tab-recipe" onclick="toggleRecipeDetail('recipe')">Recipe</button></div><div id="detail-panel-ingredients" class="detail-panel active">${r.ingredients.map(i=>`<div class="ing-row-view"><span>${escHtml(i.name)}</span><span class="ing-amt">${fmt(i.amount*scale)} ${escHtml(i.unit)}</span></div>`).join('')}</div><div id="detail-panel-recipe" class="detail-panel">${steps.length?steps.map((s,i)=>`<div class="step-item"><span class="step-num">${i+1}</span><p class="step-text">${escHtml(s)}</p></div>`).join(''):'<p style="color:var(--text2);font-size:13px;">No instructions yet.</p>'}</div></div><div class="modal-foot recipe-detail-foot"><button class="btn btn-ghost" onclick="${closeAction}">Close</button><button class="btn btn-ghost" onclick="closeModal();openEditor(${jsArg(id)})">${icon('pencil')}Edit</button></div>`, 'recipe-detail-modal');
+  showModal(`<div style="position:relative;flex-shrink:0;">${recipeImgDiv(r,'210px','border-radius:0;')}<button class="btn-icon detail-close-btn" onclick="${closeAction}">${icon('close')}</button></div><div class="detail-hd"><div style="display:flex;align-items:flex-start;gap:8px;"><h2 class="detail-title" style="flex:1;">${escHtml(r.name)}</h2><button class="fav-star ${fav?'filled':''}" onclick="toggleFav(${jsArg(id)})" data-fav-id="${escHtml(id)}" title="Favourite">${icon(fav?'heartFilled':'heart')}</button></div><div class="detail-meta"><span class="tag ${ctag(r.cuisine)}">${icon('compass')} ${escHtml(r.cuisine)}</span><span class="tag ${dtag(r.difficulty||'Medium')}">${icon('chart')} ${escHtml(r.difficulty||'Medium')}</span><span class="tag tag-blue">${icon('clock')} ${r.prepTime||30} min</span><span class="tag tag-brown">${icon('people')} ${servings||r.baseServings} pax</span>${(r.protein||[]).map(p=>`<span class="tag tag-orange" style="font-size:11px;">${icon('protein')} ${escHtml(cleanProteinLabel(p))}</span>`).join('')}${(r.allergens||[]).map(a=>`<span class="tag tag-red" style="font-size:11px;">⚠ ${escHtml(a)}</span>`).join('')}</div><a class="web-search-link" href="${webSearchUrl(r.name)}" target="_blank" rel="noopener">Search the web</a></div><div class="modal-body"><div class="detail-switch"><button id="detail-tab-ingredients" class="active" onclick="toggleRecipeDetail('ingredients')">Ingredients</button><button id="detail-tab-recipe" onclick="toggleRecipeDetail('recipe')">Recipe</button></div><div id="detail-panel-ingredients" class="detail-panel active">${r.ingredients.map(i=>`<div class="ing-row-view"><span>${escHtml(i.name)}</span><span class="ing-amt">${fmt(i.amount*scale)} ${escHtml(i.unit)}</span></div>`).join('')}</div><div id="detail-panel-recipe" class="detail-panel">${steps.length?steps.map((s,i)=>`<div class="step-item"><span class="step-num">${i+1}</span><p class="step-text">${escHtml(s)}</p></div>`).join(''):'<p style="color:var(--text2);font-size:13px;">No instructions yet.</p>'}</div></div><div class="modal-foot recipe-detail-foot"><button class="btn btn-ghost" onclick="${closeAction}">Close</button><button class="btn btn-ghost" onclick="closeModal();openEditor(${jsArg(id)})">${icon('pencil')}Edit</button></div>`, 'recipe-detail-modal');
 }
 
 
@@ -4579,17 +4654,106 @@ function renderMealCardV2(wo,di,slot,compact){
   return `<div class="meal-card-v2 ${cls} ${slotClass} ${blocked?'blocked':''} ${mealPast?'meal-passed':''}"><div class="meal-thumb">${thumbHtml}</div><div class="meal-copy"><div class="meal-slot-row"><div class="meal-slot-title">${slotName}</div>${leftoverInlinePill(meal,people)}</div><div class="meal-head-row"><div class="meal-main">${titleHtml}</div></div><div class="meal-meta-v2">${peopleBtn}${statusBadge}${meta}</div>${statusNote}</div><div class="meal-actions-v2"><button class="overflow-btn remove-meal-btn" onclick="removeMeal(${wo},${di},'${slot}')" title="Remove" aria-label="Remove meal">${icon('close')}</button></div></div>`;
 }
 function renderDiscover(){ if(!discoverQueue.length) initDiscoverQueue(); renderDiscoverDeck(); renderDiscoverSaved(); }
-function openDiscoverModal(){
+
+function syncSearchWrapState(inputId){
+  const input=document.getElementById(inputId);
+  const wrap=input?.closest('.search-wrap');
+  if(wrap) wrap.classList.toggle('has-value', !!String(input.value||'').trim());
+}
+function clearRecipeSearch(){
+  const input=document.getElementById('recipe-search');
+  if(!input) return;
+  input.value='';
+  syncSearchWrapState('recipe-search');
+  renderRecipeList();
+  input.focus();
+}
+function clearPickSearch(){
+  pickState.search='';
+  renderPickModal();
+  requestAnimationFrame(()=>{
+    const input=document.getElementById('pick-search');
+    if(input) input.focus();
+  });
+}
+function discoverDescriptionText(recipe){
+  return getSteps(recipe).join(' ').replace(/\s+/g,' ').trim();
+}
+function recipeGoogleSearchButton(name){
+  return `<button class="detail-side-link" type="button" onclick="window.open(${jsArg(webSearchUrl(name))},'_blank','noopener')" aria-label="Search on Google">${icon('arrowUpRight')}</button>`;
+}
+
+const __renderRecipeListBase=renderRecipeList;
+renderRecipeList=function(){
+  __renderRecipeListBase();
+  syncSearchWrapState('recipe-search');
+};
+
+processSwipe=function(action){
+  if(!discoverQueue.length) return;
+  const recipe=discoverQueue.shift();
+  if(action==='save') state.favourites.add(recipe.id);
+  else discoverRejected.add(recipe.id);
+  saveState();
+  renderRecipeList();
+  renderPersonal();
+  renderDiscoverDeck();
+  renderDiscoverSaved();
+};
+
+renderDiscoverSaved=function(){
+  const wrap=document.getElementById('discover-saved');
+  if(!wrap) return;
+  const favs=[...state.favourites].map(id=>getRecipe(id)).filter(Boolean);
+  const rejected=[...discoverRejected].map(id=>getRecipe(id)).filter(Boolean);
+  wrap.innerHTML=`<details class="discover-list"${favs.length?'':' open'}><summary><span>${icon('heart')}Saved (${favs.length})</span>${icon('down')}</summary><div class="discover-list-body">${favs.length?favs.map(r=>`<span class="fav-chip" onclick="viewRecipe(${jsArg(r.id)},null,true)">${escHtml(r.name)}</span>`).join(''):'<div class="empty-txt">No saved recipes yet.</div>'}</div></details><details class="discover-list"><summary><span>${icon('close')}Disliked (${rejected.length})</span>${icon('down')}</summary><div class="discover-list-body">${rejected.length?rejected.map(r=>`<span class="fav-chip" onclick="viewRecipe(${jsArg(r.id)},null,true)">${escHtml(r.name)}</span>`).join(''):'<div class="empty-txt">No disliked recipes yet.</div>'}</div></details>`;
+};
+
+openDiscoverModal=function(){
   initDiscoverQueue();
   showModal(`<div class="modal-hd"><div style="flex:1;"><div class="modal-title">${icon('sparkles')} Discover</div><div class="pg-sub">Swipe or tap to save ideas into favourites.</div></div><button class="btn btn-ghost btn-sm" onclick="resetRejected()">Reset</button><button class="btn-icon" onclick="closeModal();switchTab('recipes')">${icon('close')}</button></div><div class="modal-body"><div class="discover-deck" id="discover-deck"></div><div class="discover-actions" id="discover-actions" style="display:none;"><button class="da-btn da-reject" onclick="triggerSwipe('reject')" title="Not for me">${icon('close')}</button><button class="da-btn da-info" onclick="viewCurrentCard()" title="See recipe">${icon('book')}</button><button class="da-btn da-save" onclick="triggerSwipe('save')" title="Save to favourites">${icon('heart')}</button></div><div class="discover-status" id="discover-status"></div><div class="discover-saved-section" id="discover-saved"></div></div>`, 'fullscreen-modal');
   renderDiscover();
-}
-function renderDiscoverDeck(){
-  const deck=document.getElementById('discover-deck'); const actions=document.getElementById('discover-actions'); const status=document.getElementById('discover-status'); if(!deck) return;
-  if(!discoverQueue.length){ deck.innerHTML=`<div class="empty-discover"><div class="empty-ico">${icon('sparkles')}</div><div class="empty-txt">You've seen everything.<br>Tap Reset to start over or add more recipes.</div></div>`; if(actions) actions.style.display='none'; if(status) status.textContent=''; return; }
-  deck.innerHTML=''; const show=discoverQueue.slice(0,3); [...show].reverse().forEach((r)=>{ const card=document.createElement('div'); const originalIdx=show.findIndex(x=>x.id===r.id); const classMap=['top','peek1','peek2']; card.className='swipe-card '+(classMap[originalIdx]||''); card.dataset.rid=r.id; const steps=Array.isArray(r.instructions)?r.instructions:[]; const descText=((steps[0]||'')+' '+(steps[1]||'')).trim().slice(0,180); const proteinTags=(r.protein||[]).map(p=>`<span class="tag tag-orange" style="font-size:10px;">${icon('protein')} ${cleanProteinLabel(p)}</span>`).join(''); const allergenTags=(r.allergens||[]).length ? (r.allergens||[]).map(a=>`<span class="tag tag-red" style="font-size:10px;">⚠ ${cap(a)}</span>`).join('') : '<span class="tag" style="font-size:10px;background:#DCFCE7;color:#166534;">No listed allergens</span>'; card.innerHTML=`${recipeImgDiv(r,'195px','border-radius:0;')}<div class="swipe-overlay reject-ov" id="rov-${r.id}">${icon('close')}</div><div class="swipe-overlay save-ov" id="sov-${r.id}">${icon('heart')}</div><div class="swipe-card-body" style="padding:12px 16px 16px;"><div class="swipe-card-title" style="margin-bottom:5px;">${escHtml(r.name)}</div><div class="swipe-card-meta" style="gap:4px;margin-bottom:8px;"><span class="tag ${ctag(r.cuisine)}" style="font-size:10px;">${r.cuisine}</span><span class="tag ${dtag(r.difficulty||'Medium')}" style="font-size:10px;">${r.difficulty||'Medium'}</span><span class="tag tag-blue" style="font-size:10px;">${icon('clock')} ${r.prepTime||30}m</span><span class="tag tag-brown" style="font-size:10px;">${icon('people')} ${r.baseServings} pax</span></div>${descText?`<p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:10px;">${escHtml(descText)}${descText.length>=180?'…':''}</p>`:''}<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px;">${proteinTags}</div><div style="display:flex;flex-wrap:wrap;gap:4px;">${allergenTags}</div></div>`; if(originalIdx===0) initCardDrag(card,r); deck.appendChild(card); });
-  if(actions) actions.style.display='flex'; if(status) status.textContent=`${discoverQueue.length} recipe${discoverQueue.length!==1?'s':''} in queue · ${state.favourites.size} saved`;
-}
+};
+
+renderDiscoverDeck=function(){
+  const deck=document.getElementById('discover-deck');
+  const actions=document.getElementById('discover-actions');
+  const status=document.getElementById('discover-status');
+  if(!deck) return;
+  if(!discoverQueue.length){
+    deck.innerHTML=`<div class="empty-discover"><div class="empty-ico">${icon('sparkles')}</div><div class="empty-txt">You've seen everything.<br>Tap Reset to start over or add more recipes.</div></div>`;
+    if(actions) actions.style.display='none';
+    if(status) status.textContent='';
+    return;
+  }
+  deck.innerHTML='';
+  const show=discoverQueue.slice(0,3);
+  [...show].reverse().forEach((r)=>{
+    const card=document.createElement('div');
+    const originalIdx=show.findIndex(x=>x.id===r.id);
+    const classMap=['top','peek1','peek2'];
+    const descText=discoverDescriptionText(r);
+    const proteinTags=(r.protein||[]).map(p=>`<span class="tag tag-orange" style="font-size:11px;">${icon('protein')} ${cleanProteinLabel(p)}</span>`).join('');
+    const allergenTags=(r.allergens||[]).map(a=>`<span class="tag tag-red" style="font-size:11px;">⚠ ${cap(a)}</span>`).join('');
+    card.className='swipe-card '+(classMap[originalIdx]||'');
+    card.dataset.rid=r.id;
+    card.innerHTML=`${recipeImgDiv(r,'195px','border-radius:0;')}<div class="swipe-overlay reject-ov" id="rov-${r.id}">${icon('close')}</div><div class="swipe-overlay save-ov" id="sov-${r.id}">${icon('heart')}</div><div class="swipe-card-body"><div class="swipe-card-title" style="margin-bottom:5px;">${escHtml(r.name)}</div><div class="swipe-card-meta" style="gap:4px;margin-bottom:0;"><span class="tag ${ctag(r.cuisine)}" style="font-size:11px;">${r.cuisine}</span><span class="tag ${dtag(r.difficulty||'Medium')}" style="font-size:11px;">${r.difficulty||'Medium'}</span><span class="tag tag-blue" style="font-size:11px;">${icon('clock')} ${r.prepTime||30}m</span><span class="tag tag-brown" style="font-size:11px;">${icon('people')} ${r.baseServings} pax</span>${proteinTags}${allergenTags}</div>${descText?`<p class="swipe-card-desc">${escHtml(descText)}</p>`:''}</div>`;
+    if(originalIdx===0) initCardDrag(card,r);
+    deck.appendChild(card);
+  });
+  if(actions) actions.style.display='flex';
+  if(status) status.textContent=`${discoverQueue.length} recipe${discoverQueue.length!==1?'s':''} in queue · ${state.favourites.size} saved`;
+};
+
+viewRecipe=function(id, servings, returnToDiscover=false){
+  const r=getRecipe(id);
+  if(!r) return;
+  const scale=servings?servings/r.baseServings:1;
+  const steps=getSteps(r);
+  const fav=state.favourites.has(id);
+  const closeAction=returnToDiscover?'closeModal();openDiscoverModal(true)':'closeModal()';
+  showModal(`<div style="position:relative;flex-shrink:0;">${recipeImgDiv(r,'210px','border-radius:0;')}<button class="btn-icon detail-close-btn" onclick="${closeAction}">${icon('close')}</button></div><div class="detail-hd"><div class="detail-head-row"><h2 class="detail-title" style="flex:1;">${escHtml(r.name)}</h2><div class="detail-side-actions"><button class="fav-star ${fav?'filled':''}" onclick="toggleFav(${jsArg(id)})" data-fav-id="${escHtml(id)}" title="Favourite">${icon(fav?'heartFilled':'heart')}</button>${recipeGoogleSearchButton(r.name)}</div></div><div class="detail-meta"><span class="tag ${ctag(r.cuisine)}">${icon('compass')} ${escHtml(r.cuisine)}</span><span class="tag ${dtag(r.difficulty||'Medium')}">${icon('chart')} ${escHtml(r.difficulty||'Medium')}</span><span class="tag tag-blue">${icon('clock')} ${r.prepTime||30} min</span><span class="tag tag-brown">${icon('people')} ${servings||r.baseServings} pax</span>${(r.protein||[]).map(p=>`<span class="tag tag-orange" style="font-size:11px;">${icon('protein')} ${escHtml(cleanProteinLabel(p))}</span>`).join('')}${(r.allergens||[]).map(a=>`<span class="tag tag-red" style="font-size:11px;">⚠ ${escHtml(a)}</span>`).join('')}</div></div><div class="modal-body"><div class="detail-switch"><button id="detail-tab-ingredients" class="active" onclick="toggleRecipeDetail('ingredients')">Ingredients</button><button id="detail-tab-recipe" onclick="toggleRecipeDetail('recipe')">Recipe</button></div><div id="detail-panel-ingredients" class="detail-panel active">${r.ingredients.map(i=>`<div class="ing-row-view"><span>${escHtml(i.name)}</span><span class="ing-amt">${fmt(i.amount*scale)} ${escHtml(i.unit)}</span></div>`).join('')}</div><div id="detail-panel-recipe" class="detail-panel">${steps.length?steps.map((s,i)=>`<div class="step-item"><span class="step-num">${i+1}</span><p class="step-text">${escHtml(s)}</p></div>`).join(''):'<p style="color:var(--text2);font-size:13px;">No instructions yet.</p>'}</div></div><div class="modal-foot recipe-detail-foot"><button class="btn btn-ghost" onclick="${closeAction}">Close</button><button class="btn btn-ghost" onclick="closeModal();openEditor(${jsArg(id)})">${icon('pencil')}Edit</button></div>`, 'recipe-detail-modal');
+};
 
 async function bootApp(){
   await loadRecipeLibrary();
